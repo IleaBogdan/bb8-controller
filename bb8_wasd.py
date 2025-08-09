@@ -21,12 +21,26 @@ def move(droid, angle, speed):
         droid.set_heading(angle)
         droid.set_speed(speed)
 
+def dumb_angle(keys):
+    if keys.get('w'):
+        return 0
+    if keys.get('d'):
+        return 90
+    if keys.get('s'):
+        return 180
+    if keys.get('a'):
+        return 270
+    return None
+
 def calc_angle(keys): # normalizing angels with vectors for smoother driving
+    return dumb_angle(keys) # get rid of this shit as soon as you can 
+    
+    #problem: it only goes up, down and right. WHY ISN'T IT GOING TO THE LEFT???????
     x,y=0,0
-    if keys.get('w', False): y-=1
-    if keys.get('s', False): y+=1
-    if keys.get('d', False): x+=1
-    if keys.get('a', False): x-=1
+    if keys.get('w'): y-=1
+    if keys.get('s'): y+=1
+    if keys.get('d'): x+=1
+    if keys.get('a'): x-=1
 
     if (x==0 and y==0): return None
     vlen=math.sqrt(x*x+y*y)
@@ -39,16 +53,16 @@ def main():
     print("when bb8 glos blue you can start moveing him")
     
     useSpeed=modSpeed
+    keys={}
     bb8=scanner.find_toy()
     with SpheroEduAPI(bb8) as droid:
         droid.set_main_led(Color(r=0, g=0, b=255))
         while True:
-            keys={
-                'w': keyboard.is_pressed('w'),
-                'a': keyboard.is_pressed('a'),
-                's': keyboard.is_pressed('s'),
-                'd': keyboard.is_pressed('d')
-            }
+            keys['w']=keyboard.is_pressed('w')
+            keys['a']=keyboard.is_pressed('a')
+            keys['s']=keyboard.is_pressed('s')
+            keys['d']=keyboard.is_pressed('d')
             move(droid, calc_angle(keys), useSpeed)
+            keys.clear()
 
 main()
