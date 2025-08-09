@@ -11,7 +11,7 @@ from spherov2.sphero_edu import SpheroEduAPI
 from spherov2.types import Color
 import keyboard
 import math
-
+ 
 # consts:
 modSpeed=50
 turboSpeed=75
@@ -20,6 +20,8 @@ def move(droid, angle, speed):
     if (angle!=None):
         droid.set_heading(angle)
         droid.set_speed(speed)
+    else:
+        droid.set_speed(0)
 
 def dumb_angle(keys):
     if keys.get('w'):
@@ -54,7 +56,7 @@ def main():
     
     useSpeed=modSpeed
     keys={}
-    bb8=scanner.find_toy()
+    bb8=scanner.find_toy() # NOTE: when I will put the controller with the pygame library I will have to do tha pygame.init() after this
     with SpheroEduAPI(bb8) as droid:
         droid.set_main_led(Color(r=0, g=0, b=255))
         while True:
