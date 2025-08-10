@@ -2,7 +2,7 @@ import warnings
 warnings.filterwarnings("ignore", message="pkg_resources is deprecated")
 import pygame
 import math
-from typing import Optional, Dict, Tuple
+from typing import Dict
 
 class XboxOneController:
     # Class-level button mappings
@@ -27,6 +27,8 @@ class XboxOneController:
         self._init_pygame()
         self.joystick = self._init_controller(controller_index)
         self._setup_button_mappings()
+    def __del__(self):
+        pygame.quit()
 
     def _init_pygame(self) -> None:
         if not pygame.get_init():
@@ -47,29 +49,6 @@ class XboxOneController:
         """Setup button mappings for this controller instance."""
         self.button_code_to_name = self.BUTTON_CODE_TO_NAME.copy()
         self.button_name_to_code = self.BUTTON_NAME_TO_CODE.copy()
-
-    @staticmethod
-    def calc_angle(x, y):
-        '''
-            +1
-        -1      +1
-            -1
-        '''
-        if x==0 and y==0: return None
-        y=-y # making y to be in the xOy 
-        sin_AOB=abs(x)/math.sqrt(x*x+y*y)
-        rad_AOB=math.asin(sin_AOB)
-        deg_AOB=(rad_AOB*180.0)/math.pi
-        if x>0 and y<0:
-            # quadrant 4 (idk some symmetry stuff)
-            deg_AOB=180-deg_AOB
-        elif x<0 and y<0:
-            # quadrant 3 (adding 180 to flip it)
-            deg_AOB+=180
-        elif x<0 and y>0:
-            # quadrant 2 (same stuff as quadrant 4 but with +180)
-            deg_AOB=360-deg_AOB
-        return deg_AOB
 
     def get_button_states(self) -> Dict[str, bool]:
         return {
@@ -92,12 +71,12 @@ class XboxOneController:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return False
-            elif event.type == pygame.JOYBUTTONDOWN:
-                button_name = self.button_code_to_name.get(event.button, f"Unknown({event.button})")
-                print(f"Button pressed: {button_name}")
-            elif event.type == pygame.JOYBUTTONUP:
-                button_name = self.button_code_to_name.get(event.button, f"Unknown({event.button})")
-                print(f"Button released: {button_name}")
+            # elif event.type == pygame.JOYBUTTONDOWN:
+            #     button_name = self.button_code_to_name.get(event.button, f"Unknown({event.button})")
+            #     print(f"Button pressed: {button_name}")
+            # elif event.type == pygame.JOYBUTTONUP:
+            #     button_name = self.button_code_to_name.get(event.button, f"Unknown({event.button})")
+            #     print(f"Button released: {button_name}")
         return True
 
 if __name__ == "__main__":
@@ -112,10 +91,11 @@ if __name__ == "__main__":
             axes = controller.get_axes()
             angle = controller.calc_angle(axes["left_x"], axes["left_y"])
             
-            print(f"Left stick: ({axes['left_x']:.2f}, {axes['left_y']:.2f}) Angle: {angle}°")
+            # print(f"Left stick: ({axes['left_x']:.2f}, {axes['left_y']:.2f}) Angle: {angle}°")
             # print(f"Right stick: ({axes['right_x']:.2f}, {axes['right_y']:.2f})")
             # print(f"Triggers: LT={axes['left_trigger']:.2f}, RT={axes['right_trigger']:.2f}")
-            
+            print(controller.get_button_states())
+
             pygame.time.delay(1000)  
 
     except RuntimeError as e:
