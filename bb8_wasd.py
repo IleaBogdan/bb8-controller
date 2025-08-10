@@ -44,11 +44,26 @@ def calc_angle(keys): # normalizing angels with vectors for smoother driving
     if keys.get('d'): x+=1
     if keys.get('a'): x-=1
 
-    if (x==0 and y==0): return None
-    vlen=math.sqrt(x*x+y*y)
-    x,y=x/vlen,y/vlen
-
-    return abs(math.floor(math.degrees(math.atan2(x,-y))))%360 # calculating the angle and returning it
+    '''
+        +1
+    -1      +1
+        -1
+    '''
+    if x==0 and y==0: return None
+    y=-y # making y to be in the xOy 
+    sin_AOB=abs(x)/math.sqrt(x*x+y*y)
+    rad_AOB=math.asin(sin_AOB)
+    deg_AOB=(rad_AOB*180.0)/math.pi
+    if x>0 and y<0:
+        # quadrant 4 (idk some symmetry stuff)
+        deg_AOB=180-deg_AOB
+    elif x<0 and y<0:
+        # quadrant 3 (adding 180 to flip it)
+        deg_AOB+=180
+    elif x<0 and y>0:
+        # quadrant 2 (same stuff as quadrant 4 but with +180)
+        deg_AOB=360-deg_AOB
+    return math.floor(deg_AOB)
     
     
 def main():
