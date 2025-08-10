@@ -24,26 +24,21 @@ class XboxOneController:
     BUTTON_NAME_TO_CODE = {v: k for k, v in BUTTON_CODE_TO_NAME.items()}
 
     def __init__(self, controller_index: int = 0):
-        self._init_pygame()
-        self.joystick = self._init_controller(controller_index)
-        self._setup_button_mappings()
-    def __del__(self):
-        pygame.quit()
-
-    def _init_pygame(self) -> None:
         if not pygame.get_init():
             pygame.init()
         if not pygame.joystick.get_init():
             pygame.joystick.init()
-
-    def _init_controller(self, index: int) -> pygame.joystick.Joystick:
         try:
-            joystick = pygame.joystick.Joystick(index)
-            joystick.init()
-            print(f"Controller detected: {joystick.get_name()}")
-            return joystick
+            self.joystick = pygame.joystick.Joystick(controller_index)
+            self.joystick.init()
+            self.deadzone=0.075
+            print(f"Controller detected: {self.joystick.get_name()}")
         except pygame.error as e:
-            raise RuntimeError(f"No controller detected at index {index}: {str(e)}")
+            raise RuntimeError(f"No controller detected at index {controller_index}: {str(e)}")
+        self._setup_button_mappings()
+
+    def __del__(self):
+        pygame.quit()
 
     def _setup_button_mappings(self) -> None:
         """Setup button mappings for this controller instance."""
@@ -57,8 +52,8 @@ class XboxOneController:
             if code < self.joystick.get_numbuttons()
         }
 
-    def get_axes(self) -> Dict[str, float]:
-        return {
+    def get_axis(self) -> Dict[str, float]:
+        default_axis = {
             "left_x": self.joystick.get_axis(0),
             "left_y": self.joystick.get_axis(1),
             "right_x": self.joystick.get_axis(2),
@@ -66,7 +61,13 @@ class XboxOneController:
             "left_trigger": (self.joystick.get_axis(4) + 1) / 2,  # Normalize to 0-1
             "right_trigger": (self.joystick.get_axis(5) + 1) / 2,  # Normalize to 0-1
         }
-
+        
+        deadzone_axis = {
+            key: (0.0 if abs(val) < self.deadzone and (key=="right_x" or key=="right_y") else val)
+            for key, val in default_axis.items()
+        }
+        return deadzone_axis
+        
     def process_events(self) -> None:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

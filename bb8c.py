@@ -7,16 +7,16 @@ import math
 
 # const values:
 modSpeed=50
-turboSpeed=75
-maxSpeed=100
+turboSpeed=150 # deepseek says this might be the max speed, but idk
+maxSpeed=255
 
-def calc_angle_and_speed(x, y):
+def calc_angle(x, y):
     '''
         +1
     -1      +1
         -1
     '''
-    if x==0 and y==0: return [None, None]
+    if x==0 and y==0: return None
     y=-y # making y to be in the xOy 
     sin_AOB=abs(x)/math.sqrt(x*x+y*y)
     rad_AOB=math.asin(sin_AOB)
@@ -30,8 +30,11 @@ def calc_angle_and_speed(x, y):
     elif x<0 and y>0:
         # quadrant 2 (same stuff as quadrant 4 but with +180)
         deg_AOB=360-deg_AOB
-    speed=math.sqrt(x*x+y*y)*100.0
-    return [deg_AOB, speed]
+    return deg_AOB
+
+def calc_speed(x, y):
+    speed=math.sqrt(x*x+y*y)*100.0 # this formula is shit, but I have no better ideas for it 
+    return speed
 
 def move(droid, fangle, fspeed):
     if (fangle!=None and fspeed!=None):
@@ -47,7 +50,7 @@ def on_collision(droid):
 def find_bb8():
     spherobb8=scanner.find_BB8()
     print("connected to bb8")
-    print("after bb8 glows blue press Left Stick to start driving or stop driving")
+    print("after bb8 glows blue press 'A' to start driving or stop driving")
     return spherobb8
 
 def main():
@@ -59,50 +62,29 @@ def main():
     xoc=XboxOneController(0)
     with SpheroEduAPI(spherobb8) as bb8:
         bb8.set_main_led(Color(r=0, g=0, b=255))
-        
-        try:
-            if hasattr(bb8, 'enable_collision_detection'):
-                bb8.enable_collision_detection()
-            elif hasattr(bb8, 'configure_collision_detection'):
-                bb8.configure_collision_detection(
-                    method=1,
-                    x_threshold=100,
-                    y_threshold=100,
-                    x_speed=100,
-                    y_speed=100,
-                    dead_time=10
-                )
-            print("collision enabled")
-        except Exception as e:
-            print(f"Couldn't enable collision detection: {e}")
 
         print("you can drive bb8 now")
-        run,drive=True,False
-        while run:
+        drive=False
+        while True:
             pygame.event.pump() # VERY IMPORTANT, THIS ALLOWS THE BLUETOOTH TO TAKE THE CONTROLLER INPUT
             
             button_states=xoc.get_button_states()
             # print(button_states)
             if button_states['M']:
-                run=False
-            axis=xoc.get_axes()
-            angle_and_speed=calc_angle_and_speed(axis["left_x"], axis["left_y"])[:]
-            # print(angle_and_speed)
-            fangle,fspeed=None,None
-            if (angle_and_speed[0]!=None and angle_and_speed[1]!=None):
-                fangle,fspeed=math.floor(angle_and_speed[0]),math.floor(angle_and_speed[1])
-            if button_states['LSP']:
+                break
+            if button_states['A']:
                 drive=not drive
                 print(("driving stopped", "driving started")[drive])
             if not drive:
-                fangle,fspeed=None,None
-            move(bb8, fangle, fspeed) 
+                continue
 
-            try:
-                if hasattr(bb8, 'was_collision_detected') and bb8.was_collision_detected():
-                    on_collision(bb8)
-            except Exception as e:
-                pass  # Collision detection not available
+            axis=xoc.get_axis()
+            fangle,fspeed=calc_angle(axis["right_x"],axis["right_y"]),calc_speed(axis["left_x"],axis["left_y"])
+            fangle,fspeed=math.floor(fangle) if fangle!=None else None,math.floor(fspeed) if fspeed!=None else None # flooring the values for the sphero function 
+            
+            print(f"{axis["right_x"]},{axis["right_y"]}")
+            
+            move(bb8, fangle, fspeed) 
             
     del xoc
 
