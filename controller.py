@@ -1,6 +1,7 @@
 import warnings
 warnings.filterwarnings("ignore", message="pkg_resources is deprecated")
 import pygame
+import math
 
 pygame.init()  
 pygame.joystick.init()
@@ -31,6 +32,27 @@ button_name_to_code={
 
 }
 
+def calc_angle_leftStick(x, y):
+    hypo,adjSide=math.sqrt(x*x+y*y),abs(x)
+    if (hypo==0): return None
+    consA=adjSide/hypo
+    A=math.acos(consA) # A is in radians
+    degA=A*180.0/math.pi
+    
+    # setting degA in the right quadrants
+    if x>0 and y<0:
+        pass # quadrants 1 => no need to change
+    elif x<0 and y<0:
+        degA+=90
+        # quadrants 2
+    elif x<0 and y>0:
+        degA+=180
+        # quadrants 3
+    else:
+        degA+=270
+        # quadrants 4
+    return degA
+
 run=True
 while run:
     for event in pygame.event.get():
@@ -57,6 +79,9 @@ while run:
 
     left_x = joystick.get_axis(0)
     left_y = joystick.get_axis(1)
+    print(f"{left_x}, {left_y}")
+    print(calc_angle_leftStick(left_x, left_y))
+    pygame.time.delay(1000)
     right_x = joystick.get_axis(2)
     right_y = joystick.get_axis(3)
     left_trigger = joystick.get_axis(4)  # Values from -1 to 1 (often needs adjustment)
@@ -64,7 +89,7 @@ while run:
     # print(f"Left joystick: {left_x},{left_y}")
     # print(f"Right joystick: {right_x},{right_y}")
     # print(f"Left trigger: {left_trigger}")
-    print(f"Right trigger: {right_trigger}")
+    # print(f"Right trigger: {right_trigger}")
     
 
 pygame.quit()
