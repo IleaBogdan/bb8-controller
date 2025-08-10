@@ -40,15 +40,44 @@ def move(droid, fangle, fspeed):
     else:
         droid.set_speed(0)
 
-def main():
-    print("bb8 will be drivable after it glows blue")
+def on_collision(droid):
+    droid.stop_roll()
+    print("I hit something")
+
+def find_bb8():
     spherobb8=scanner.find_BB8()
     print("connected to bb8")
+    print("after bb8 glows blue press Left Stick to start driving or stop driving")
+    return spherobb8
+
+def main():
+    try:
+        spherobb8=find_bb8()
+    except Exception as e:
+        print(e)
+        return
     xoc=XboxOneController(0)
     with SpheroEduAPI(spherobb8) as bb8:
         bb8.set_main_led(Color(r=0, g=0, b=255))
+        
+        try:
+            if hasattr(bb8, 'enable_collision_detection'):
+                bb8.enable_collision_detection()
+            elif hasattr(bb8, 'configure_collision_detection'):
+                bb8.configure_collision_detection(
+                    method=1,
+                    x_threshold=100,
+                    y_threshold=100,
+                    x_speed=100,
+                    y_speed=100,
+                    dead_time=10
+                )
+            print("collision enabled")
+        except Exception as e:
+            print(f"Couldn't enable collision detection: {e}")
+
         print("you can drive bb8 now")
-        run=True
+        run,drive=True,False
         while run:
             pygame.event.pump() # VERY IMPORTANT, THIS ALLOWS THE BLUETOOTH TO TAKE THE CONTROLLER INPUT
             
@@ -58,9 +87,22 @@ def main():
                 run=False
             axis=xoc.get_axes()
             angle_and_speed=calc_angle_and_speed(axis["left_x"], axis["left_y"])[:]
-            print(angle_and_speed)
-            fangle, fspeed=math.floor(angle_and_speed[0]),math.floor(angle_and_speed[1])
+            # print(angle_and_speed)
+            fangle,fspeed=None,None
+            if (angle_and_speed[0]!=None and angle_and_speed[1]!=None):
+                fangle,fspeed=math.floor(angle_and_speed[0]),math.floor(angle_and_speed[1])
+            if button_states['LSP']:
+                drive=not drive
+                print(("driving stopped", "driving started")[drive])
+            if not drive:
+                fangle,fspeed=None,None
             move(bb8, fangle, fspeed) 
+
+            try:
+                if hasattr(bb8, 'was_collision_detected') and bb8.was_collision_detected():
+                    on_collision(bb8)
+            except Exception as e:
+                pass  # Collision detection not available
             
     del xoc
 
