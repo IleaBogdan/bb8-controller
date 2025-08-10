@@ -31,7 +31,8 @@ class XboxOneController:
         try:
             self.joystick = pygame.joystick.Joystick(controller_index)
             self.joystick.init()
-            self.deadzone=0.075
+            self.right_deadzone=0.075
+            self.left_deadzone=0.13
             print(f"Controller detected: {self.joystick.get_name()}")
         except pygame.error as e:
             raise RuntimeError(f"No controller detected at index {controller_index}: {str(e)}")
@@ -61,10 +62,9 @@ class XboxOneController:
             "left_trigger": (self.joystick.get_axis(4) + 1) / 2,  # Normalize to 0-1
             "right_trigger": (self.joystick.get_axis(5) + 1) / 2,  # Normalize to 0-1
         }
-        
+        # print(f"{default_axis["left_x"]},{default_axis["left_y"]}")
         deadzone_axis = {
-            key: (0.0 if abs(val) < self.deadzone and (key=="right_x" or key=="right_y") else val)
-            for key, val in default_axis.items()
+            key: 0.0 if ((key in ("left_x", "left_y") and abs(val) < self.left_deadzone) or (key in ("right_x", "right_y") and abs(val) < self.right_deadzone)) else val for key, val in default_axis.items()
         }
         return deadzone_axis
         

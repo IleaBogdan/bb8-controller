@@ -33,15 +33,17 @@ def calc_angle(x, y):
     return deg_AOB
 
 def calc_speed(x, y):
-    speed=math.sqrt(x*x+y*y)*100.0 # this formula is shit, but I have no better ideas for it 
+    is_neg=-1 if y>0.0 else 1
+    speed=math.sqrt(x*x+y*y)*100.0*is_neg # this formula is shit, but I have no better ideas for it 
     return speed
 
 def move(droid, fangle, fspeed):
-    if (fangle!=None and fspeed!=None):
-        droid.set_heading(fangle)
+    if (fspeed!=None):
         droid.set_speed(fspeed)
-    else:
-        droid.set_speed(0)
+        if fspeed<0:
+            droid.set_heading(droid.get_heading())
+    if (fangle!=None):
+        droid.set_heading(fangle)
 
 def on_collision(droid):
     droid.stop_roll()
@@ -54,6 +56,7 @@ def find_bb8():
     return spherobb8
 
 def main():
+    # print("F")
     try:
         spherobb8=find_bb8()
     except Exception as e:
@@ -82,7 +85,7 @@ def main():
             fangle,fspeed=calc_angle(axis["right_x"],axis["right_y"]),calc_speed(axis["left_x"],axis["left_y"])
             fangle,fspeed=math.floor(fangle) if fangle!=None else None,math.floor(fspeed) if fspeed!=None else None # flooring the values for the sphero function 
             
-            print(f"{axis["right_x"]},{axis["right_y"]}")
+            # print(f"{axis["left_x"]},{axis["left_y"]}")
             
             move(bb8, fangle, fspeed) 
             
