@@ -62,7 +62,7 @@ def main():
             if not drive:
                 continue
 
-            fangle=calc.get_angle(axis["left_x"],axis["left_y"])
+            fangle=calc.get_angle(axis["right_x"],axis["right_y"])
             # fspeed=calc.get_speed(axis["left_x"],axis["left_y"])
             fspeed=calc.get_speed(axis["right_trigger"])
             fangle,fspeed=math.floor(fangle) if fangle!=None else None,math.floor(fspeed) if fspeed!=None else None # flooring the values for the sphero function 
