@@ -28,6 +28,9 @@ def main():
         axis=ctrl.get_axis()
         button_states=ctrl.get_button_states()
 
+        axis["left_x"],axis["left_y"]=calc.normalize_to_circle(axis["left_x"],axis["left_y"])
+        axis["right_x"],axis["right_y"]=calc.normalize_to_circle(axis["right_x"],axis["right_y"])
+
         if args.local:
             visualizer.process_events()
             visualizer.update_point(axis["right_x"], -axis["right_y"], True)

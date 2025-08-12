@@ -33,3 +33,10 @@ def get_speed(x, y):
 def get_speed(x):
     # print(x)
     return 160*x
+
+def normalize_to_circle(x, y):
+    length = math.sqrt(x**2 + y**2)
+    if length > 1.0:
+        x /= length
+        y /= length
+    return x, y

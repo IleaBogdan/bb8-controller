@@ -1,7 +1,6 @@
 import warnings
 warnings.filterwarnings("ignore", message="pkg_resources is deprecated")
 import pygame
-import math
 from typing import Dict
 
 class XboxOneController:
@@ -35,7 +34,8 @@ class XboxOneController:
             self.left_deadzone=0.13
             print(f"Controller detected: {self.joystick.get_name()}")
         except pygame.error as e:
-            raise RuntimeError(f"No controller detected at index {controller_index}: {str(e)}")
+            print(e)
+            # raise RuntimeError(f"No controller detected at index {controller_index}: {str(e)}")
         self._setup_button_mappings()
 
     def __del__(self):

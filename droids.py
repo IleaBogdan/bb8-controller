@@ -6,7 +6,7 @@ class bb8v1:
     def __init__(self):
         self.toy = scanner.find_BB8()
         if not self.toy:
-            raise ConnectionError("Could not find BB8")
+            print("Could not find BB8")
         
         # Hack to maintain persistent connection
         self.bb8 = SpheroEduAPI(self.toy)

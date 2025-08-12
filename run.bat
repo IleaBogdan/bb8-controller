@@ -8,5 +8,4 @@ python -O %PYTHON_SCRIPT% %PYTHON_ARGS% 2>&1
 if %errorlevel% neq 0 (
     echo.
     echo Python script failed with errorlevel %errorlevel%
-    pause
 )
