@@ -36,7 +36,7 @@ def main():
     except Exception as e:
         print(e)
         return
-    xoc=XboxOneController(0)
+    xoc=XboxOneController()
     with SpheroEduAPI(spherobb8) as bb8:
         bb8.set_main_led(Color(r=0, g=0, b=255))
 

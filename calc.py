@@ -26,10 +26,10 @@ def get_angle(x, y):
 @dispatch(int,int)
 def get_speed(x, y):
     is_neg=-1 if y>0.0 else 1
-    speed=math.sqrt(x*x+y*y)*100.0*is_neg # this formula is shit, but I have no better ideas for it 
+    speed=math.sqrt(x*x+y*y)*160.0*is_neg # this formula is shit, but I have no better ideas for it 
     return speed
 
 @dispatch((float,int))
 def get_speed(x):
-    print(x)
+    # print(x)
     return 160*x
