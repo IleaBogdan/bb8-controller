@@ -1,0 +1,2 @@
+1 == unknown error
+255 (-1) == droid not found

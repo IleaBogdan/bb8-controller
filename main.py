@@ -4,20 +4,26 @@ parser.add_argument('--local', action='store_true')
 args = parser.parse_args()
 
 from spherov2.types import Color
+import spherov2
 from controllers import XboxOneController
 from droids import bb8v1
 import pygame
 import calc
 import math
+import sys
 
 if args.local:
     import gui
 
 def main():
-    droid=bb8v1()
-    droid.set_main_led(Color(r=0,g=0,b=255))
-    ctrl=XboxOneController()
-    
+    try:
+        droid=bb8v1()
+        droid.set_main_led(Color(r=0,g=0,b=255))
+        ctrl=XboxOneController()
+    except spherov2.scanner.ToyNotFoundError:
+        print("Can't find any droid")
+        sys.exit(-1)
+        
     if args.local:
         visualizer = gui.CircleVisualizer()
 
@@ -61,4 +67,8 @@ def main():
     del ctrl
 
 if __name__=="__main__":
-    main()
+    try:
+        main()
+    except Exception as Err:
+        print(Err)
+        sys.exit(1)

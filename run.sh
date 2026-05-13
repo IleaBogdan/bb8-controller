@@ -7,7 +7,9 @@ echo "Running $PYTHON_SCRIPT with arguments: $PYTHON_ARGS"
 
 python3 -O "$PYTHON_SCRIPT" $PYTHON_ARGS 2>&1
 
-if [ $? -ne 0 ]; then
+exit_code=$?
+
+if [ $exit_code -ne 0 ]; then
     echo
-    echo "Python script failed with errorlevel $?"
+    echo "Python script failed with errorlevel $exit_code"
 fi
