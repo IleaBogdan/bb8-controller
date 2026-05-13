@@ -1,0 +1,4 @@
+spherov2
+pygame
+multipledispatch
+bleak
